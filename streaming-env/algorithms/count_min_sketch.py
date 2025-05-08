@@ -3,7 +3,7 @@ import random
 import hashlib
 
 class CountMinSketch:
-    def __init__(self, width: int, depth: int, seed: int = 42):
+    def __init__(self, width: int, depth: int, seed: int = 42, prime: bool = False):
         """
         width: number of counters per row
         depth: number of hash functions (rows)
@@ -12,7 +12,10 @@ class CountMinSketch:
         self.depth = depth
         self.count = [[0] * width for _ in range(depth)]
         random.seed(seed)
-        self.hash_seeds = [random.randint(0, 2**31 - 1) for _ in range(depth)]
+        mod = 2**31 - 1
+        if prime == True:
+            mod = 2**61 - 1
+        self.hash_seeds = [random.randint(0, mod) for _ in range(depth)]
 
     def _hash(self, item, i):
         """

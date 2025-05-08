@@ -6,7 +6,12 @@ st.set_page_config(page_title="Streaming Algo Dashboard", layout="wide")
 
 # --- Load Data ---
 benchmark_df = pd.read_csv("../results/benchmark_multi_dist.csv")
+benchmark_k20_df = pd.read_csv("../results/benchmark_multi_dist_20.csv")
+benchmark_k40_df = pd.read_csv("../results/benchmark_multi_dist_40.csv")
+benchmark_df["F1@20"] = benchmark_k20_df["F1@20"]
+benchmark_df["F1@40"] = benchmark_k40_df["F1@40"]
 real_df = pd.read_csv("../results/sales_approx.csv")
+real_mod_df = pd.read_csv("../results/sales_approx_mod.csv")
 
 # Sidebar Filters
 st.sidebar.title("🔎 Filter Options")
@@ -25,6 +30,8 @@ if view == "Synthetic":
     dist = st.sidebar.multiselect("Select Distributions", benchmark_df["Distribution"].unique(), default=["uniform"])
     memory_range = st.sidebar.slider("Memory Size", int(benchmark_df["MemorySize"].min()), int(benchmark_df["MemorySize"].max()), (20, 100))
 
+    
+
     filtered = benchmark_df[
         (benchmark_df["Distribution"].isin(dist)) &
         (benchmark_df["MemorySize"].between(*memory_range)) &
@@ -32,7 +39,7 @@ if view == "Synthetic":
         (benchmark_df["Algorithm"].isin(selected_alg))
     ]
 
-    tab1, tab2, tab3 = st.tabs(["Mean Absolute Error", "F1@10 Score", "Runtime"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Mean Absolute Error", "F1@10 Score", "F1@20 Score", "F1@40 Score", "Runtime"])
     
     with tab1:
         fig = px.line(filtered, x="MemorySize", y="MeanAbsError", color="Algorithm", line_dash="Distribution", markers=True)
@@ -43,6 +50,14 @@ if view == "Synthetic":
         st.plotly_chart(fig, use_container_width=True)
 
     with tab3:
+        fig = px.line(filtered, x="MemorySize", y="F1@20", color="Algorithm", line_dash="Distribution", markers=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+    with tab4:
+        fig = px.line(filtered, x="MemorySize", y="F1@40", color="Algorithm", line_dash="Distribution", markers=True)
+        st.plotly_chart(fig, use_container_width=True)
+
+    with tab5:
         fig = px.line(filtered, x="MemorySize", y="Runtime", color="Algorithm", line_dash="Distribution", markers=True)
         st.plotly_chart(fig, use_container_width=True)
 

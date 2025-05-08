@@ -2,13 +2,16 @@ import random
 import hashlib
 
 class BasicCountSketch:
-    def __init__(self, width: int, seed: int = 42):
+    def __init__(self, width: int, seed: int = 42, prime: bool = False):
         self.width = width
         self.count = [0] * width
         
         random.seed(seed)
-        self.hash_seed = random.randint(0, 2**31 - 1)
-        self.sign_seed = random.randint(0, 2**31 - 1)
+        mod = 2**31 - 1
+        if prime == True:
+            mod = 2**61 - 1
+        self.hash_seed = random.randint(0, mod)
+        self.sign_seed = random.randint(0, mod)
 
     def _hash(self, item, seed):
         item = str(item)
